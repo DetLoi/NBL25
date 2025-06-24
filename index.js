@@ -7,17 +7,27 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- CORS fix ---
+const allowedOrigins = [
+  'https://nordicbreak.dk',
+  'http://nordicbreak.dk',
+  'https://nbl25.onrender.com',
+  'http://localhost:5173'
+];
+
 const corsOptions = {
-  origin: ['https://nordicbreak.dk', 'http://nordicbreak.dk'],
-  methods: ['GET', 'POST', 'OPTIONS'],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS: ' + origin));
+    }
+  },
+  methods: ['GET', 'POST', 'OPTIONS', 'DELETE'],
   allowedHeaders: ['Content-Type'],
-  credentials: true,
-  optionsSuccessStatus: 200
+  credentials: true
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // preflight support
 
 // --- Express setup ---
 app.use(express.json());
