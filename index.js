@@ -6,11 +6,17 @@ const registrationRoutes = require('./routes/registrations');
 require('dotenv').config();
 
 const app = express();
-app.use(cors({
+const corsOptions = {
   origin: ['https://nordicbreak.dk', 'http://nordicbreak.dk'],
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type']
-}));
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
+app.options('*', cors(corsOptions)); // preflight support
 
 app.use(express.json());
 
