@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'https://nordicbreak.dk',
   'http://nordicbreak.dk',
+  'https://www.nordicbreak.dk',
+  'http://www.nordicbreak.dk',
   'https://nbl25.onrender.com',
   'http://localhost:5173'
 ];
@@ -28,29 +30,29 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // <- vigtigt!
 
-// --- Express setup ---
 app.use(express.json());
 
-// --- MongoDB connection ---
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => {
-  console.error('MongoDB connection error:', err.message);
-  process.exit(1);
-});
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => {
+    console.error('MongoDB connection error:', err.message);
+    process.exit(1);
+  });
 
-// --- Routes ---
 app.get('/', (req, res) => {
   res.send('Hello from Backend');
 });
 
 app.use('/api/registrations', registrationRoutes);
 
-// --- Start server ---
+// Fejl-håndtering (CORS m.m.)
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err.message);
+  res.status(500).json({ error: err.message || 'Internal Server Error' });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
